@@ -1,0 +1,178 @@
+/* Contenitore principale */
+.home {
+    padding: 1.5rem; /* Spaziatura interna */
+    background-color: #222425; /* Colore di sfondo chiaro */
+  }
+  
+  /* Titolo */
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #1d4ed8; /* Colore blu */
+  }
+  
+  /* Sezione input e select */
+  .input-row {
+    display: flex;
+    flex-direction: column; /* Su schermi piccoli, gli elementi sono in colonna */
+    gap: 1rem;
+    background-color: rgb(4, 4, 4);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (min-width: 768px) {
+    .input-row {
+      flex-direction: row; /* Su schermi più grandi, gli input sono su una riga */
+      align-items: center;
+      gap: 1.5rem;
+    }
+  }
+  
+  input,
+  select,
+  button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb; /* Colore bordi chiari */
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  input:focus,
+  select:focus,
+  button:focus {
+    outline: none;
+    border-color: #3b82f6; /* Colore blu per il focus */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* Box shadow blu */
+  }
+  
+  /* Stile per il bottone */
+  button {
+    background-color: #3b82f6;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  button:hover {
+    background-color: #2563eb;
+  }
+  
+  /* Sezione delle checkbox */
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .checkbox-row label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Sezione risultato: prezzo e immagine */
+  .result {
+    margin-top: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  p {
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  img {
+    width: 16rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+  }  
+
+  .card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card-item {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.5rem;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+.card-item img {
+  max-width: 100%;
+  height: auto;
+}
+/* CSS per la sezione dei risultati */
+.all-results {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.all-results ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr); /* 8 carte per riga */
+  gap: 20px; /* Distanza tra le carte */
+}
+
+.all-results li {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.all-results li h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.all-results li p {
+  margin: 5px 0;
+}
+
+.all-results li img {
+  width: 100px; /* Imposta una larghezza fissa per l'immagine */
+  height: auto;
+  margin-top: 10px;
+}
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 16px;
+  margin-top: 1rem;
+}
+
+.result-card {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  background:#050505;
+  text-align: center;
+}
+
+.result-card img {
+  max-width: 100%;
+  height: auto;
+}
+
