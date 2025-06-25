@@ -17,7 +17,7 @@ const Home = () => {
   const [isHolo, setIsHolo] = useState(false);
   const [isReverseHolo, setIsReverseHolo] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { sets, loading: loadingSets, error } = useFetchSets();
+  const {sets, loading: loadingSets, error } = useFetchSets();
   const [ocrText, setOcrText] = useState('');
   const [cardData, setCardData] = useState(null);
   const {cardNames, loading: loadingNames, error: errorNames} = useCardNames();

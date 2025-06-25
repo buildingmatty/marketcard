@@ -6,7 +6,6 @@ import getCardDataFromText from "../utils/getCardDataFromText";
 const OcrReader = ({ sets, onCardDataExtracted }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const cardData = getCardDataFromText(text, sets, cardNames); // 👈 passa anche cardNames
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -19,14 +18,15 @@ const OcrReader = ({ sets, onCardDataExtracted }) => {
       const { data } = await Tesseract.recognize(file, "eng+ita+jpn", {
         logger: (m) => console.log(m),
       });
-
       const text = data.text;
+
       console.log("OCR text:", text);
 
+      // Qui ricavi cardData dal testo OCR
       const cardData = getCardDataFromText(text, sets);
       console.log("Card data extracted:", cardData);
 
-      if (typeof onCardDataExtracted === 'function') {
+      if (typeof onCardDataExtracted === "function") {
         onCardDataExtracted(cardData);
       } else {
         console.warn("⚠️ `onCardDataExtracted` non è stata fornita o non è una funzione.");
@@ -49,3 +49,4 @@ const OcrReader = ({ sets, onCardDataExtracted }) => {
 };
 
 export default OcrReader;
+
