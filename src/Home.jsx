@@ -21,6 +21,7 @@ const Home = () => {
   const [ocrText, setOcrText] = useState('');
   const [cardData, setCardData] = useState([]);
   const {cardNames, loading: loadingNames, error: errorNames} = useCardNames();
+  const [sortOder, setSortOrder] = useState('az'); // Filtro per nome in ordine alfabetico
 
   // Avvia la ricerca solo se il testo viene da OCR
   useEffect(() => {
@@ -31,55 +32,6 @@ const Home = () => {
     }
   }, [cardName, triggeredByOcr]);
 
-  /*// PaddleOCR ------------------------------------------------------------------------
-  const handleImageUpload = async (imageFile) => {
-    const formData = new FormData();
-    formData.append("image", imageFile);
-    setLoading(true);
-
-  try {
-    const response = await fetch("http://localhost:8080/api/ocr", {
-      method: "POST",
-      mode: "cors",
-      body: formData,
-    })
-  .catch(error => {
-    if (error.name === "TypeError" && error.message.includes('fetch')){
-      alert("Errore di connessione al server OCR. Verifica che il backend(localhost:8080) sia online e con CORS abilitato");
-      console.error(error);
-      return null;
-    }
-  });
-
-    if(!response){
-      setLoading(false);
-      return;
-    }
-
-    if (!response.ok) {
-      console.error(`Errore dal server OCR: ${response.status}, ${response.statusText}`);
-      setLoading(false);
-      return;
-    }
-
-    const data = await response.json();
-    console.log("OCR Response:", data);
-
-    if (data.cardName && data.setId) {
-      setCardName(data.cardName);
-      setSetId(data.setId);
-      setTriggeredByOcr(true);
-    } else {
-      alert("OCR non è riuscito a individuare dati utili.");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Errore nell'analisi OCR.");
-  } finally {
-    setLoading(false);
-  }
-};*/
-//----------------------------------------------------------------------------------------------------
 
   const fetchPriceData = async () => {
   if (!cardName.trim()) {
@@ -168,6 +120,7 @@ const Home = () => {
       <h1>Cerca Carta</h1>
 
       <OcrReader
+        className="ocr-reader"
         sets={sets}
         cardNames={cardNames} // 👈 passalo
         onCardDataExtracted={(cardData) => {
@@ -179,7 +132,7 @@ const Home = () => {
 
       <div className="input-row">
         <div className="input-group">
-          <label>Nome Carta:</label>
+          <label>Nome Carta: </label>
           <input
             type="text"
             value={cardName}
@@ -193,7 +146,7 @@ const Home = () => {
         </div>
 
         <div className="input-group">
-          <label>Filtra Set:</label>
+          <label>Filtra Set: </label>
           <input
             type="text"
             placeholder="Cerca set..."
@@ -280,7 +233,7 @@ const Home = () => {
                 {/* Prezzi suddivisi con .toFixed(2) */}
                 <div className="prices">
                   <p>
-                    <strong>TGCPlayer Normale</strong>:{' '}
+                    <strong>TGCPlayer Std</strong>:{' '}
                     {card.tcgplayer?.prices?.normal?.market
                       ? `$${card.tcgplayer.prices.normal.market.toFixed(2)}`
                       : 'N/D'}
@@ -298,7 +251,7 @@ const Home = () => {
                       : 'N/D'}
                   </p>
                   <p>
-                    <strong>Prezzo Medio CardMarket:</strong>{' '}
+                    <strong>Medio CardMarket:</strong>{' '}
                     {card.cardmarket?.prices?.averageSellPrice
                       ? `$${card.cardmarket.prices.averageSellPrice.toFixed(2)}`
                       : 'N/D'}

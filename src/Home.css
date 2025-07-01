@@ -1,6 +1,7 @@
 /* Contenitore principale */
 .home {
     padding: 1.5rem; /* Spaziatura interna */
+    margin: 1rem auto; /* Margine esterno */
     background-color: #222425; /* Colore di sfondo chiaro */
   }
   
@@ -199,6 +200,14 @@
   width: 100%;
   height: auto;
   object-fit: contain;
+}
+.ocr-reader {
+  margin: 1rem;
+  padding-bottom: 1rem;
+  background-color: #1e293b; /* Colore di sfondo scuro */
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #f8fafc; /* Colore del testo chiaro */
 }
 
 
