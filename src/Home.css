@@ -210,4 +210,10 @@
   color: #f8fafc; /* Colore del testo chiaro */
 }
 
+.logo{
+  margin-bottom: 5vh;
+  align-items: left;
+  min-height: 30vh;
+}
+
 
