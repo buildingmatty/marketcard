@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import OcrReader from "./componets/OcrReader";
+import OcrReader from "./components/OcrReader";
 import useFetchSets from "./hook/useFetchSets";
 import getCardDataFromText from "./utils/getCardDataFromText";
 import useCardNames from "./hook/useCardNames";
@@ -9,7 +9,7 @@ import './Home.css';
 const Home = () => {
   const [cardName, setCardName] = useState('');
   const [triggeredByOcr, setTriggeredByOcr] = useState(false); // 👈 nuovo stato
-  const [setId, setSetId] = useState('base1');
+  const [setId, setSetId] = useState('all');
   const [searchSet, setSearchSet] = useState('');
   const [price, setPrice] = useState(null);
   const [image, setImage] = useState(null);
@@ -19,7 +19,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const {sets, loading: loadingSets, error } = useFetchSets();
   const [ocrText, setOcrText] = useState('');
-  const [cardData, setCardData] = useState(null);
+  const [cardData, setCardData] = useState([]);
   const {cardNames, loading: loadingNames, error: errorNames} = useCardNames();
 
   // Avvia la ricerca solo se il testo viene da OCR
@@ -31,57 +31,128 @@ const Home = () => {
     }
   }, [cardName, triggeredByOcr]);
 
+  /*// PaddleOCR ------------------------------------------------------------------------
+  const handleImageUpload = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    setLoading(true);
 
+  try {
+    const response = await fetch("http://localhost:8080/api/ocr", {
+      method: "POST",
+      mode: "cors",
+      body: formData,
+    })
+  .catch(error => {
+    if (error.name === "TypeError" && error.message.includes('fetch')){
+      alert("Errore di connessione al server OCR. Verifica che il backend(localhost:8080) sia online e con CORS abilitato");
+      console.error(error);
+      return null;
+    }
+  });
 
-  const fetchPriceData = async () => {
-    if (!cardName.trim()) {
-      setPrice('Inserisci nome carta.');
+    if(!response){
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setPrice(null);
-    setImage(null);
-    setRarityLabel(null);
+    if (!response.ok) {
+      console.error(`Errore dal server OCR: ${response.status}, ${response.statusText}`);
+      setLoading(false);
+      return;
+    }
 
-    try {
-      let query = `name:"${cardName.trim()}"`;
-      if (setId !== 'all') query += ` set.id:${setId}`;
+    const data = await response.json();
+    console.log("OCR Response:", data);
 
-      const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
+    if (data.cardName && data.setId) {
+      setCardName(data.cardName);
+      setSetId(data.setId);
+      setTriggeredByOcr(true);
+    } else {
+      alert("OCR non è riuscito a individuare dati utili.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Errore nell'analisi OCR.");
+  } finally {
+    setLoading(false);
+  }
+};*/
+//----------------------------------------------------------------------------------------------------
 
-      const data = await response.json();
+  const fetchPriceData = async () => {
+  if (!cardName.trim()) {
+    setPrice('Inserisci nome carta.');
+    return;
+  }
 
-      if (data.data && data.data.length > 0) {
-        const cardData = data.data[0];
-        const pricesTcg = cardData.tcgplayer?.prices;
-        let priceUsd = pricesTcg?.holofoil?.market || pricesTcg?.normal?.market || null;
+  setLoading(true);
+  setPrice(null);
+  setImage(null);
+  setRarityLabel(null);
 
-        const pricesCardMarket = cardData.cardmarket?.prices;
-        let priceEur = pricesCardMarket?.trendPrice || pricesCardMarket?.averageSellPrice || null;
+  try {
+    let query = `name:"${cardName.trim()}"`;
+    if (setId !== 'all') {
+      query += ` set.id:${setId}`;
+    }
+
+    const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
+
+    const data = await response.json();
+
+    if (data.data && data.data.length > 0) {
+      if (setId === 'all') {
+        // ✅ mostra tutte le carte trovate se non è stato selezionato un set
+        setCardData(data.data); // supponiamo che tu usi uno state tipo `cardData: []`
+        setPrice(`${data.data.length} risultati trovati`);
+      } else {
+        // ✅ prendi solo la prima carta se è specificato il set
+        const card = data.data[0];
+
+        const pricesTcg = card.tcgplayer?.prices;
+        let priceUsd = null;
+        if (isHolo) {
+          priceUsd = pricesTcg?.holofoil?.market;
+        } else if (isReverseHolo) {
+          priceUsd = pricesTcg?.reverseHolofoil?.market;
+        } else {
+          priceUsd = pricesTcg?.normal?.market;
+        }
+
+        const pricesCardMarket = card.cardmarket?.prices;
+        let priceEur = null;
+        if (isReverseHolo) {
+          priceEur = pricesCardMarket?.reverseHoloTrend;
+        } else {
+          priceEur = pricesCardMarket?.trendPrice;
+        }
 
         const prezzoUsdStr = priceUsd ? `${priceUsd.toFixed(2)} USD` : 'Prezzo USD non disponibile';
         const prezzoEurStr = priceEur ? `${priceEur.toFixed(2)} EUR` : 'Prezzo EUR non disponibile';
 
         setPrice(`Prezzo stimato: ${prezzoUsdStr} / ${prezzoEurStr}`);
-        setImage(cardData.images.large);
-        setRarityLabel(cardData.rarity);
-      } else {
-        setPrice('Nessun risultato trovato.');
-        setImage(null);
-        setRarityLabel(null);
+        setImage(card.images.large);
+        setRarityLabel(card.rarity);
+        setCardData([card]); // come array, per uniformità
       }
-    } catch (error) {
-      setPrice('Errore nella ricerca.');
+    } else {
+      setPrice('Nessun risultato trovato.');
       setImage(null);
       setRarityLabel(null);
-      console.error(error);
-    } finally {
-      setLoading(false);
+      setCardData([]);
     }
-  };
+  } catch (error) {
+    setPrice('Errore nella ricerca.');
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   /*const filteredSetOptions = Object.entries(setOptions).filter(([id, name]) =>
     name.toLowerCase().includes(searchSet.toLowerCase())
@@ -132,22 +203,20 @@ const Home = () => {
           />
         </div>
 
-        <div className="input-group">
-          <label>Set:</label>
-          <select
-            value={setId}
-            onChange={(e) => setSetId(e.target.value)}
-            disabled={loading || loadingSets}
-          >
-            {filteredSetOptions.length > 0 ? (
-              filteredSetOptions.map(({ id, name }) => (
-                <option key={id} value={id}>{name}</option>
-              ))
-            ) : (
-              <option disabled>Nessun set trovato</option>
-            )}
-          </select>
-        </div>
+        <select
+          value={setId}
+          onChange={(e) => setSetId(e.target.value)}
+          disabled={loading || loadingSets}
+        >
+          <option value="all">Tutti i set</option> {/* 👈 Aggiunto manualmente */}
+          {filteredSetOptions.length > 0 ? (
+            filteredSetOptions.map(({ id, name }) => (
+              <option key={id} value={id}>{name}</option>
+            ))
+          ) : (
+            <option disabled>Nessun set trovato</option>
+          )}
+        </select>
 
         <div className="checkbox-row">
           <label>
@@ -180,7 +249,6 @@ const Home = () => {
       <div className="result">
         <h2>Prezzo:</h2>
         <p>{price || 'Nessun risultato'}</p>
-
         {rarityLabel && (
           <p className="rarity">Rarità: <strong>{rarityLabel}</strong></p>
         )}
@@ -192,6 +260,56 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      {Array.isArray(cardData) && cardData.length > 1 && (
+        <div className="all-cards">
+          <h2>Carte trovate:</h2>
+          <div className="card-grid">
+            {cardData.map((card) => (
+              <div key={card.id} className="card-box">
+                {card.images?.large ? (
+                  <img src={card.images.large} alt={card.name} />
+                ) : (
+                  <div className="no-image">Immagine non disponibile</div>
+                )}
+                <p><strong>Set:</strong> {card.set?.name || 'N/D'}</p>
+                {rarityLabel && (
+                <p className="rarity">Rarità: <strong>{rarityLabel}</strong></p>
+              )}
+
+                {/* Prezzi suddivisi con .toFixed(2) */}
+                <div className="prices">
+                  <p>
+                    <strong>TGCPlayer Normale</strong>:{' '}
+                    {card.tcgplayer?.prices?.normal?.market
+                      ? `$${card.tcgplayer.prices.normal.market.toFixed(2)}`
+                      : 'N/D'}
+                  </p>
+                  <p>
+                    <strong>TGCPlayer Holofoil:</strong>{' '}
+                    {card.tcgplayer?.prices?.holofoil?.market
+                      ? `$${card.tcgplayer.prices.holofoil.market.toFixed(2)}`
+                      : 'N/D'}
+                  </p>
+                  <p>
+                    <strong>TGCPlayer Reverse Holofoil:</strong>{' '}
+                    {card.tcgplayer?.prices?.reverseHolofoil?.market
+                      ? `$${card.tcgplayer.prices.reverseHolofoil.market.toFixed(2)}`
+                      : 'N/D'}
+                  </p>
+                  <p>
+                    <strong>Prezzo Medio CardMarket:</strong>{' '}
+                    {card.cardmarket?.prices?.averageSellPrice
+                      ? `$${card.cardmarket.prices.averageSellPrice.toFixed(2)}`
+                      : 'N/D'}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

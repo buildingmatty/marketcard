@@ -128,7 +128,7 @@
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(8, 1fr); /* 8 carte per riga */
+  grid-template-columns: repeat(5, 1fr); /* 8 carte per riga */
   gap: 20px; /* Distanza tra le carte */
 }
 
@@ -175,4 +175,30 @@
   max-width: 100%;
   height: auto;
 }
+
+.all-cards {
+  margin-top: 2rem;
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.card-box {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 200px;
+  text-align: center;
+  background-color: black;
+}
+
+.card-box img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 
